@@ -1,0 +1,5 @@
+# Ignore AutogluonModels folder and all its contents
+AutogluonModels/
+
+# Ignore __pycache__ folders and all their contents
+__pycache__/
