@@ -7,7 +7,7 @@ Created on Fri Dec 27 19:01:14 2024
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from autogluon.timeseries import TimeSeriesPredictor
-from data_parser import get_data_for_chronos_bolt, get_data_for_autogluon
+from data_parser import get_data_for_chronos_bolt
 import pandas as pd
 
 # model_name="chronos-bolt-tiny", mini, small, base

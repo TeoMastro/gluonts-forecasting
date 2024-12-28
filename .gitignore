@@ -3,3 +3,6 @@ AutogluonModels/
 
 # Ignore __pycache__ folders and all their contents
 __pycache__/
+
+autogluon-multivariate-forecasting/
+autogluon-univariate-forecasting/
