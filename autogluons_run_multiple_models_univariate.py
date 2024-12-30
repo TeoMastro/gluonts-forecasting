@@ -4,14 +4,11 @@ import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 
-# Paths to datasets
 univariate_data_path = './Datasets/TSB-Forecasting-U/bitcoin_dataset.csv'
 univariate_data_path_nn5 = './Datasets/TSB-Forecasting-U/NN5/T1_2.csv'
 univariate_data_path_us_gasoline = './Datasets/TSB-Forecasting-U/us_gasoline/us_gasoline.csv'
 
 df = pd.read_csv(univariate_data_path)
-print(df.head())
-
 df.rename(columns={
     "date": "timestamp",  
     "data": "target"      
@@ -36,8 +33,9 @@ test_data = TimeSeriesDataFrame.from_data_frame(
     timestamp_column="timestamp"
 )
 
+prediction_length = 10
 predictor = TimeSeriesPredictor(
-    prediction_length=48,
+    prediction_length=prediction_length,
     path="autogluon-univariate-forecasting",
     target="target",
     eval_metric="MASE",
@@ -45,7 +43,6 @@ predictor = TimeSeriesPredictor(
 )
 
 custom_models = {
-    "ZeroModel": {},
     "AutoETS": {},
     "AutoCES": {},               
     "Theta": {},                 
@@ -67,40 +64,19 @@ predictor.fit(
 predictions = predictor.predict(test_data)
 
 leaderboard = predictor.leaderboard(test_data)
-print(leaderboard)
 
-# TODO: Make sure I have a way to evaluate these models according to ours.
-# model_names = predictor.model_names
+model_names = predictor.model_names()
 
-# results = []
+all_evaluations = {}
 
-# for model in model_names:
-#     print(f"\nEvaluating Model: {model}")
-#     predictions = predictor.predict(test_data, model=model)
-    
-#     y_pred = predictions["mean"]
-#     y_true = test_data["target"]
+for model in model_names:
+    evaluation = predictor.evaluate(
+        test_data,
+        metrics=['MSE', 'RMSE', 'MAE', 'WAPE', 'SMAPE'],
+        model=model
+    )
+    evaluation = {metric: -value for metric, value in evaluation.items()}
+    all_evaluations[model] = evaluation
 
-#     y_true_aligned, y_pred_aligned = y_true.align(y_pred, join='inner')
+evaluation_df = pd.DataFrame(all_evaluations).transpose()
 
-#     mse = mean_squared_error(y_true_aligned, y_pred_aligned)
-#     rmse = np.sqrt(mse)
-#     mae = mean_absolute_error(y_true_aligned, y_pred_aligned)
-#     r2 = r2_score(y_true_aligned, y_pred_aligned)
-
-#     results.append({
-#         "Model": model,
-#         "MSE": mse,
-#         "RMSE": rmse,
-#         "MAE": mae,
-#         "R²": r2
-#     })
-
-#     print(f"MSE: {mse:.4f}")
-#     print(f"RMSE: {rmse:.4f}")
-#     print(f"MAE: {mae:.4f}")
-#     print(f"R²: {r2:.4f}")
-
-# results_df = pd.DataFrame(results)
-# print("\n=== Model Evaluation Results ===")
-# print(results_df)
